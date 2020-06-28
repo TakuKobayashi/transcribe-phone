@@ -12,9 +12,11 @@ jobs:
 
     strategy:
       matrix:
-        compile-sdk: [29]
-        build-tools: [29.0.2]
+        compile-sdk: [30]
+        build-tools: [30.0.0]
         sdk-tools:   [4333796]
+        ndk-version: [21.0.6113669]
+        cmake-version: [3.10.2.4988404]
 
     steps:
     - uses: actions/checkout@v1
@@ -41,6 +43,11 @@ jobs:
         set +o pipefail
         yes | android-sdk-linux/tools/bin/sdkmanager --licenses
         set -o pipefail
+    - name: install Android ndk
+      run: android-sdk-linux/tools/bin/sdkmanager --install "ndk;${{ matrix.ndk-version }}" "cmake;${{ matrix.cmake-version }}"
+    - name: Insert NDK path
+      run: |
+        echo "ndk.dir=$PWD/android-sdk-linux/ndk/${{ matrix.ndk-version }}" >> ./local.properties
     - name: Android Debug Build
       run: ./gradlew assembleDebug
     - uses: actions/upload-artifact@master
